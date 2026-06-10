@@ -12,6 +12,7 @@ import SignupScreen from '../screens/auth/SignupScreen';
 import StudentDashboard from '../screens/student/StudentDashboard';
 import BrowseJobsScreen from '../screens/student/BrowseJobsScreen';
 import JobDetailScreen from '../screens/student/JobDetailScreen';
+import UploadDocumentsScreen from '../screens/student/UploadDocumentsScreen';
 
 // Company Screens
 import CompanyDashboard from '../screens/company/CompanyDashboard';
@@ -44,21 +45,30 @@ const RootNavigator = () => {
         ) : user.role === 'STUDENT' ? (
           <>
             <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
-            <Stack.Screen 
-              name="BrowseJobs" 
+            <Stack.Screen
+              name="BrowseJobs"
               component={BrowseJobsScreen}
               options={{ headerShown: true, title: 'Browse Jobs', headerBackTitle: 'Back' }}
             />
-            <Stack.Screen 
-              name="JobDetail" 
+            <Stack.Screen
+              name="JobDetail"
               component={JobDetailScreen}
               options={{ headerShown: true, title: 'Job Detail', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="UploadDocuments"
+              component={UploadDocumentsScreen}
+              options={{ headerShown: true, title: 'My Documents', headerBackTitle: 'Back' }}
             />
           </>
         ) : user.role === 'COMPANY' ? (
           <>
             <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} />
-            <Stack.Screen name="PostJob" component={PostJobScreen} />
+            <Stack.Screen
+              name="PostJob"
+              component={PostJobScreen}
+              options={{ headerShown: true, title: 'Post Internship', headerBackTitle: 'Back' }}
+            />
           </>
         ) : (
           <Stack.Screen name="AdminDashboard" component={AdminDashboard} />

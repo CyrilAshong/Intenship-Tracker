@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,7 +12,7 @@ const StudentDashboard = ({ navigation }: any) => {
   const { user, logout } = useAuth();
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.greeting}>
           Hello, {user?.studentProfile?.firstName} 👋
@@ -32,8 +33,18 @@ const StudentDashboard = ({ navigation }: any) => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('UploadDocuments')}>
           <Text style={styles.cardIcon}>📄</Text>
+          <Text style={styles.cardTitle}>My Documents</Text>
+          <Text style={styles.cardSubtitle}>
+            Upload your CV and cover letter
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.card}>
+          <Text style={styles.cardIcon}>📋</Text>
           <Text style={styles.cardTitle}>My Applications</Text>
           <Text style={styles.cardSubtitle}>
             Track your application status
@@ -52,7 +63,9 @@ const StudentDashboard = ({ navigation }: any) => {
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
-    </View>
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
   );
 };
 
@@ -79,7 +92,6 @@ const styles = StyleSheet.create({
   },
   cards: {
     padding: 16,
-    gap: 12,
   },
   card: {
     backgroundColor: '#fff',
