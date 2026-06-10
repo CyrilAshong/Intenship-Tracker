@@ -8,9 +8,16 @@ import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/auth/LoginScreen';
 import SignupScreen from '../screens/auth/SignupScreen';
 
-// Role Screens
+// Student Screens
 import StudentDashboard from '../screens/student/StudentDashboard';
+import BrowseJobsScreen from '../screens/student/BrowseJobsScreen';
+import JobDetailScreen from '../screens/student/JobDetailScreen';
+
+// Company Screens
 import CompanyDashboard from '../screens/company/CompanyDashboard';
+import PostJobScreen from '../screens/company/PostJobScreen';
+
+// Admin Screens
 import AdminDashboard from '../screens/admin/AdminDashboard';
 
 const Stack = createNativeStackNavigator();
@@ -30,15 +37,29 @@ const RootNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!user ? (
-          // Not logged in — show auth screens
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
           </>
         ) : user.role === 'STUDENT' ? (
-          <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
+          <>
+            <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
+            <Stack.Screen 
+              name="BrowseJobs" 
+              component={BrowseJobsScreen}
+              options={{ headerShown: true, title: 'Browse Jobs', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen 
+              name="JobDetail" 
+              component={JobDetailScreen}
+              options={{ headerShown: true, title: 'Job Detail', headerBackTitle: 'Back' }}
+            />
+          </>
         ) : user.role === 'COMPANY' ? (
-          <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} />
+          <>
+            <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} />
+            <Stack.Screen name="PostJob" component={PostJobScreen} />
+          </>
         ) : (
           <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
         )}

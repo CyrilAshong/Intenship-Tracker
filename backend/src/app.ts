@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoutes from './routes/auth.routes';
+import jobRoutes from './routes/job.routes';
+import applicationRoutes from './routes/application.routes';
 
 const app: Application = express();
 
@@ -30,6 +32,8 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
