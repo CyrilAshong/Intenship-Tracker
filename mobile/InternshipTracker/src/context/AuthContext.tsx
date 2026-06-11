@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // On app start, check if a token exists in keychain
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -29,13 +28,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setToken(savedToken);
         }
       } catch (error) {
-        // Token expired or invalid — clear it
         await removeToken();
       } finally {
         setIsLoading(false);
       }
     };
-
     loadUser();
   }, []);
 

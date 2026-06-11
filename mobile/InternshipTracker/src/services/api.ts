@@ -1,9 +1,9 @@
 import axios from 'axios';
-import * as Keychain from 'react-native-keychain';
+import * as SecureStore from 'expo-secure-store';
 
-const API_URL = 'http://10.0.2.2:5000/api';
-// 10.0.2.2 is the Android emulator's alias for localhost
-// If using a real device, replace with your machine's local IP e.g. http://192.168.1.5:5000/api
+const API_URL = 'http://172.20.10.5:5000/api';
+// Replace 192.168.1.5 with your PC's local IP address
+// To find it: run 'ipconfig' in Command Prompt and look for IPv4 Address
 
 const api = axios.create({
   baseURL: API_URL,
@@ -14,9 +14,9 @@ const api = axios.create({
 
 // Attach token to every request automatically
 api.interceptors.request.use(async (config) => {
-  const credentials = await Keychain.getGenericPassword();
-  if (credentials) {
-    config.headers.Authorization = `Bearer ${credentials.password}`;
+  const token = await SecureStore.getItemAsync('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

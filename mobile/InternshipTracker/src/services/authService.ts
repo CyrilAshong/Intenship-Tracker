@@ -1,4 +1,4 @@
-import * as Keychain from 'react-native-keychain';
+import * as SecureStore from 'expo-secure-store';
 import api from './api';
 import { AuthResponse } from '../types';
 
@@ -41,14 +41,13 @@ export const loginUser = async (
 };
 
 export const saveToken = async (token: string): Promise<void> => {
-  await Keychain.setGenericPassword('token', token);
+  await SecureStore.setItemAsync('token', token);
 };
 
 export const getToken = async (): Promise<string | null> => {
-  const credentials = await Keychain.getGenericPassword();
-  return credentials ? credentials.password : null;
+  return await SecureStore.getItemAsync('token');
 };
 
 export const removeToken = async (): Promise<void> => {
-  await Keychain.resetGenericPassword();
+  await SecureStore.deleteItemAsync('token');
 };

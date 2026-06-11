@@ -36,3 +36,30 @@ export interface AuthResponse {
   token: string;
   user: User;
 }
+
+export interface Job {
+  id: string;
+  title: string;
+  description: string;
+  skillsRequired: string[];
+  location: string | null;
+  type: string;
+  isPaid: boolean;
+  stipend: number | null;
+  duration: string | null;
+  vacancies: number;
+  deadline: string | null;
+  createdAt: string;
+  company: {
+    id: string;
+    companyProfile: {
+      companyName: string;
+      industry: string | null;
+      logoUrl: string | null;
+      location: string | null;
+    } | null;
+  };
+  _count: {
+    applications: number;
+  };
+}
