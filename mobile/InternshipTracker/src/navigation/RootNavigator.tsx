@@ -10,8 +10,11 @@ import StudentLoginScreen from '../screens/auth/StudentLoginScreen';
 import StudentRegisterScreen from '../screens/auth/StudentRegisterScreen';
 import CompanyLoginScreen from '../screens/auth/CompanyLoginScreen';
 import CompanyRegisterScreen from '../screens/auth/CompanyRegisterScreen';
+import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
 
-import StudentDashboard from '../screens/student/StudentDashboard';
+import StudentTabNavigator from './StudentTabNavigator';
+import JobDetailScreen from '../screens/student/JobDetailScreen';
+
 import CompanyDashboard from '../screens/company/CompanyDashboard';
 
 const Stack = createNativeStackNavigator();
@@ -38,9 +41,13 @@ const RootNavigator = () => {
             <Stack.Screen name="StudentRegister" component={StudentRegisterScreen} />
             <Stack.Screen name="CompanyLogin" component={CompanyLoginScreen} />
             <Stack.Screen name="CompanyRegister" component={CompanyRegisterScreen} />
+            <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
           </>
         ) : user.role === 'STUDENT' ? (
-          <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
+          <>
+            <Stack.Screen name="StudentTabs" component={StudentTabNavigator} />
+            <Stack.Screen name="JobDetail" component={JobDetailScreen} />
+          </>
         ) : (
           <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} />
         )}

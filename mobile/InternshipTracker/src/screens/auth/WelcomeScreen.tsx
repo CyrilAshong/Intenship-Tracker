@@ -53,29 +53,6 @@ const WelcomeScreen = ({ navigation }: any) => {
             <Text className="text-white font-semibold text-base">Sign In</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Stats */}
-        <View className="flex-row justify-around pt-4 border-t border-white/20">
-          <View className="items-center">
-            <Text className="text-base">🛡️</Text>
-            <Text className="text-xs text-white/60 font-semibold tracking-wide mt-1">
-              SECURE APPLY
-            </Text>
-          </View>
-          <View className="items-center">
-            <Text className="text-base">🎓</Text>
-            <Text className="text-xs text-white/60 font-semibold tracking-wide mt-1">
-              STUDENT LED
-            </Text>
-          </View>
-          <View className="items-center">
-            <Text className="text-base">📈</Text>
-            <Text className="text-xs text-white/60 font-semibold tracking-wide mt-1">
-              CAREER GROWTH
-            </Text>
-          </View>
-        </View>
-
       </View>
     </ImageBackground>
   );

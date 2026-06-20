@@ -12,7 +12,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
-import { loginUser, saveToken } from '../../services/authService';
+import { loginUser, resendOTP, saveToken } from '../../services/authService';
 
 const CompanyLoginScreen = ({ navigation }: any) => {
   const { setAuth } = useAuth();
@@ -38,6 +38,30 @@ const CompanyLoginScreen = ({ navigation }: any) => {
     } catch (error: any) {
       const message =
         error.response?.data?.message ?? 'Login failed. Please try again.';
+      if (message.toLowerCase().includes('verify your email')) {
+        const normalizedEmail = email.trim();
+        try {
+          await resendOTP(normalizedEmail);
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'OTPVerification',
+                params: {
+                  email: normalizedEmail,
+                  role: 'COMPANY',
+                },
+              },
+            ],
+          });
+        } catch (resendError: any) {
+          const resendMessage =
+            resendError.response?.data?.message ??
+            'Could not send a verification code. Please try again.';
+          Alert.alert('Verification Email Failed', resendMessage);
+        }
+        return;
+      }
       Alert.alert('Login Failed', message);
     } finally {
       setIsLoading(false);

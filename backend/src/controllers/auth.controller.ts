@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, getMe } from '../services/auth.service';
+import {
+  registerUser,
+  loginUser,
+  getMe,
+  verifyOTP,
+  resendOTP,
+} from '../services/auth.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
 import { Role } from '@prisma/client';
 
@@ -7,14 +13,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, role, firstName, lastName, companyName } = req.body;
 
-    // Basic validation
     if (!email || !password || !role) {
       sendError(res, 'Email, password and role are required.', 400);
       return;
     }
 
     if (!Object.values(Role).includes(role)) {
-      sendError(res, 'Role must be STUDENT, COMPANY or ADMIN.', 400);
+      sendError(res, 'Role must be STUDENT or COMPANY.', 400);
       return;
     }
 
@@ -23,7 +28,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const { user, token } = await registerUser({
+    const { user } = await registerUser({
       email,
       password,
       role,
@@ -33,6 +38,28 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     sendCreated(res, {
+      email: user.email,
+      role: user.role,
+    }, 'Registration successful. Please check your email for the OTP verification code.');
+
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Registration failed.';
+    sendError(res, message, 400);
+  }
+};
+
+export const verify = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      sendError(res, 'Email and OTP are required.', 400);
+      return;
+    }
+
+    const { user, token } = await verifyOTP(email, otp);
+
+    sendSuccess(res, {
       token,
       user: {
         id: user.id,
@@ -41,10 +68,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         studentProfile: user.studentProfile,
         companyProfile: user.companyProfile,
       },
-    }, 'Account created successfully.');
+    }, 'Email verified successfully. Welcome to UniIntern!');
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Registration failed.';
+    const message = error instanceof Error ? error.message : 'Verification failed.';
+    sendError(res, message, 400);
+  }
+};
+
+export const resendOTPHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      sendError(res, 'Email is required.', 400);
+      return;
+    }
+    const result = await resendOTP(email);
+    sendSuccess(res, result, 'OTP resent successfully.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to resend OTP.';
     sendError(res, message, 400);
   }
 };

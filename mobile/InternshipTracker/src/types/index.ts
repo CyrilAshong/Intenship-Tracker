@@ -37,6 +37,11 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface RegistrationResponse {
+  email: string;
+  role: Role;
+}
+
 export interface Job {
   id: string;
   title: string;

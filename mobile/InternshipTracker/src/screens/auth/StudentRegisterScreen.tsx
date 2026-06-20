@@ -11,11 +11,9 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
-import { useAuth } from '../../context/AuthContext';
-import { registerStudent, saveToken } from '../../services/authService';
+import { registerStudent } from '../../services/authService';
 
 const StudentRegisterScreen = ({ navigation }: any) => {
-  const { setAuth } = useAuth();
   const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -46,8 +44,18 @@ const StudentRegisterScreen = ({ navigation }: any) => {
         firstName,
         lastName,
       );
-      await saveToken(result.token);
-      setAuth(result.user, result.token);
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'OTPVerification',
+            params: {
+              email: result.email,
+              role: result.role,
+            },
+          },
+        ],
+      });
     } catch (error: any) {
       const message = error.response?.data?.message ?? 'Registration failed.';
       Alert.alert('Error', message);

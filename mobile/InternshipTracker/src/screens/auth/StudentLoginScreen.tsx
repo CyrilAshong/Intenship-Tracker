@@ -12,7 +12,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
-import { loginUser, saveToken } from '../../services/authService';
+import { loginUser, resendOTP, saveToken } from '../../services/authService';
 
 const StudentLoginScreen = ({ navigation }: any) => {
   const { setAuth } = useAuth();
@@ -38,6 +38,30 @@ const StudentLoginScreen = ({ navigation }: any) => {
     } catch (error: any) {
       const message =
         error.response?.data?.message ?? 'Login failed. Please try again.';
+      if (message.toLowerCase().includes('verify your email')) {
+        const normalizedEmail = email.trim();
+        try {
+          await resendOTP(normalizedEmail);
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'OTPVerification',
+                params: {
+                  email: normalizedEmail,
+                  role: 'STUDENT',
+                },
+              },
+            ],
+          });
+        } catch (resendError: any) {
+          const resendMessage =
+            resendError.response?.data?.message ??
+            'Could not send a verification code. Please try again.';
+          Alert.alert('Verification Email Failed', resendMessage);
+        }
+        return;
+      }
       Alert.alert('Login Failed', message);
     } finally {
       setIsLoading(false);
@@ -77,12 +101,12 @@ const StudentLoginScreen = ({ navigation }: any) => {
           {/* Email */}
           <View className="mb-4">
             <Text className="text-sm font-semibold text-navy mb-1.5">
-              University Email
+              Email
             </Text>
-            <View className="flex-row items-center border border-gray-200 rounded-xl px-3 py-2.5 gap-2">
+            <View className="flex-row items-center border border-gray-200 rounded-xl px-3 pb-2.5 gap-2">
               <Text className="text-sm">✉️</Text>
               <TextInput
-                className="flex-1 text-sm text-navy"
+                className="flex-1 text-navy"
                 placeholder="e.g. smith.j@university.edu"
                 placeholderTextColor="#9ca3af"
                 keyboardType="email-address"
@@ -98,10 +122,10 @@ const StudentLoginScreen = ({ navigation }: any) => {
             <Text className="text-sm font-semibold text-navy mb-1.5">
               Password
             </Text>
-            <View className="flex-row items-center border border-gray-200 rounded-xl px-3 py-2.5 gap-2">
+            <View className="flex-row items-center border border-gray-200 rounded-xl px-3 pb-2.5 gap-2">
               <Text className="text-sm">🔒</Text>
               <TextInput
-                className="flex-1 text-sm text-navy"
+                className="flex-1 text-navy"
                 placeholder="••••••••"
                 placeholderTextColor="#9ca3af"
                 secureTextEntry={!showPassword}
