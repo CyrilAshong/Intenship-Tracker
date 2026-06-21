@@ -10,77 +10,183 @@ const StudentProfileScreen = ({ navigation }: any) => {
     <View className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
+
         {/* Header */}
-        <View className="bg-navy px-5 pt-16 pb-8 items-center">
-          <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-3 border border-white/30">
+        <View className="flex-row justify-between items-center px-4 pt-14 pb-3 bg-white border-b border-gray-100">
+          <Text className="text-lg font-bold text-navy">🎓 UniIntern</Text>
+          <View className="w-9 h-9 rounded-full bg-navy items-center justify-center">
+            <Text className="text-sm font-bold text-white">
+              {profile?.firstName?.charAt(0) ?? 'S'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Cover + Avatar */}
+        <View className="bg-gray-200 h-24" />
+        <View className="items-center -mt-12 px-4">
+          <View className="w-24 h-24 rounded-full bg-navy items-center justify-center border-4 border-white">
             <Text className="text-3xl font-bold text-white">
               {profile?.firstName?.charAt(0) ?? 'S'}
             </Text>
           </View>
-          <Text className="text-xl font-bold text-white">
+          <Text className="text-xl font-bold text-navy mt-3">
             {profile?.firstName} {profile?.lastName}
           </Text>
-          <Text className="text-sm text-white/70 mt-1">{user?.email}</Text>
+          <Text className="text-sm text-gray-500">
+            {profile?.university ?? 'University not set'}
+          </Text>
+          <Text className="text-sm text-gray-400 mb-3">
+            {profile?.course ?? 'Course not set'}
+            {profile?.yearOfStudy ? ` (Year ${profile.yearOfStudy})` : ''}
+          </Text>
+          <TouchableOpacity className="bg-navy rounded-full px-6 py-2.5">
+            <Text className="text-sm font-semibold text-white">Edit Profile</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Info Cards */}
-        <View className="px-5 -mt-5">
-          <View className="bg-white rounded-2xl p-5 shadow-sm mb-4">
-            <Text className="text-sm font-bold text-navy mb-3">
-              Academic Information
+        <View className="px-4 mt-6 gap-4">
+
+          {/* Academic Overview */}
+          <View className="bg-white rounded-2xl p-5 shadow-sm">
+            <Text className="text-base font-bold text-navy mb-3">
+              Academic Overview
             </Text>
-            <View className="gap-2">
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-gray-500">University</Text>
-                <Text className="text-sm font-medium text-navy">
-                  {profile?.university ?? 'Not set'}
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-gray-500">Course</Text>
-                <Text className="text-sm font-medium text-navy">
-                  {profile?.course ?? 'Not set'}
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-gray-500">Year of Study</Text>
-                <Text className="text-sm font-medium text-navy">
-                  {profile?.yearOfStudy ?? 'Not set'}
-                </Text>
-              </View>
+            <View className="mb-3">
+              <Text className="text-xs text-gray-400 mb-1">Course of Study</Text>
+              <Text className="text-base font-semibold text-navy">
+                {profile?.course ?? 'Not set'}
+              </Text>
             </View>
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-sm text-gray-400">Expected Grad</Text>
+              <Text className="text-sm font-semibold text-navy">
+                {profile?.yearOfStudy ? `Year ${profile.yearOfStudy}` : 'Not set'}
+              </Text>
+            </View>
+            {profile?.verificationStatus === 'VERIFIED' && (
+              <View className="bg-teal-light rounded-lg py-2 px-3 flex-row items-center gap-2">
+                <Text className="text-sm">✅</Text>
+                <Text className="text-xs font-semibold text-teal-dark">
+                  Verified by Registrar
+                </Text>
+              </View>
+            )}
           </View>
 
-          <View className="bg-white rounded-2xl p-5 shadow-sm mb-4">
-            <Text className="text-sm font-bold text-navy mb-3">Skills</Text>
+          {/* Technical Skills */}
+          <View className="bg-white rounded-2xl p-5 shadow-sm">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-base font-bold text-navy">
+                Technical Skills
+              </Text>
+              <TouchableOpacity>
+                <Text className="text-xs text-gray-400">✎ Edit</Text>
+              </TouchableOpacity>
+            </View>
             {profile?.skills && profile.skills.length > 0 ? (
               <View className="flex-row flex-wrap gap-2">
                 {profile.skills.map((skill, index) => (
-                  <View key={index} className="bg-teal-light rounded-full px-3 py-1.5">
-                    <Text className="text-xs font-medium text-teal-dark">{skill}</Text>
+                  <View key={index} className="bg-gray-100 rounded-full px-3 py-1.5">
+                    <Text className="text-xs font-medium text-navy">{skill}</Text>
                   </View>
                 ))}
               </View>
             ) : (
-              <Text className="text-sm text-gray-400">No skills added yet</Text>
+              <TouchableOpacity className="border border-dashed border-gray-200 rounded-xl py-3 items-center">
+                <Text className="text-sm text-gray-400">+ Add your skills</Text>
+              </TouchableOpacity>
             )}
+
+            <View className="h-px bg-gray-100 my-4" />
+
+            <Text className="text-xs font-bold text-gray-400 tracking-wide mb-2">
+              LANGUAGES
+            </Text>
+            <View className="flex-row flex-wrap gap-3">
+              <View className="flex-row items-center gap-1.5">
+                <View className="w-2 h-2 rounded-full bg-teal" />
+                <Text className="text-xs text-gray-500">English (Native)</Text>
+              </View>
+            </View>
           </View>
 
-          <TouchableOpacity
-            className="bg-white rounded-2xl p-4 shadow-sm mb-3 flex-row justify-between items-center"
-            onPress={() => navigation.navigate('UploadDocuments')}>
-            <View className="flex-row items-center gap-3">
-              <Text className="text-xl">📄</Text>
-              <Text className="text-sm font-semibold text-navy">My Documents</Text>
-            </View>
-            <Text className="text-gray-400">→</Text>
-          </TouchableOpacity>
+          {/* Experience & Projects */}
+          <View className="bg-white rounded-2xl p-5 shadow-sm">
+            <Text className="text-base font-bold text-navy mb-3">
+              Experience &amp; Projects
+            </Text>
+            <TouchableOpacity className="border border-dashed border-gray-200 rounded-xl py-4 items-center">
+              <Text className="text-sm text-gray-400">
+                + Add a project or experience
+              </Text>
+            </TouchableOpacity>
+          </View>
 
+          {/* Internship Interests */}
+          <View className="bg-white rounded-2xl p-5 shadow-sm">
+            <Text className="text-base font-bold text-navy mb-3">
+              Internship Interests
+            </Text>
+            <TouchableOpacity className="flex-row items-center gap-3 bg-gray-50 rounded-xl p-3 mb-2">
+              <View className="w-9 h-9 rounded-lg bg-white items-center justify-center border border-gray-100">
+                <Text className="text-lg">💻</Text>
+              </View>
+              <View>
+                <Text className="text-sm font-semibold text-navy">
+                  Software Engineering
+                </Text>
+                <Text className="text-xs text-gray-400">
+                  Full-stack, Backend, Mobile
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity className="border border-dashed border-gray-200 rounded-xl py-3 items-center">
+              <Text className="text-sm text-gray-400">+ Add another interest</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Documents */}
+          <View className="bg-white rounded-2xl p-5 shadow-sm">
+            <Text className="text-base font-bold text-navy mb-3">Documents</Text>
+            <TouchableOpacity
+              className="flex-row justify-between items-center bg-gray-50 rounded-xl p-3 mb-2"
+              onPress={() => navigation.navigate('UploadDocuments')}>
+              <View className="flex-row items-center gap-3">
+                <Text className="text-lg">📄</Text>
+                <View>
+                  <Text className="text-sm font-semibold text-navy">
+                    Curriculum Vitae
+                  </Text>
+                  <Text className="text-xs text-gray-400">Manage your CV</Text>
+                </View>
+              </View>
+              <Text className="text-gray-400">→</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-row justify-between items-center bg-gray-50 rounded-xl p-3"
+              onPress={() => navigation.navigate('UploadDocuments')}>
+              <View className="flex-row items-center gap-3">
+                <Text className="text-lg">✅</Text>
+                <View>
+                  <Text className="text-sm font-semibold text-navy">
+                    University Endorsement Letter
+                  </Text>
+                  <Text className="text-xs text-gray-400">
+                    Manage your letter
+                  </Text>
+                </View>
+              </View>
+              <Text className="text-gray-400">→</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Logout */}
           <TouchableOpacity
-            className="bg-white rounded-2xl py-4 items-center border border-red-100 mt-4"
+            className="bg-white rounded-2xl py-4 items-center border border-red-100"
             onPress={logout}>
             <Text className="text-sm font-semibold text-red-500">Logout</Text>
           </TouchableOpacity>
+
         </View>
       </ScrollView>
     </View>

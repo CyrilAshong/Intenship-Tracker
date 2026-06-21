@@ -108,3 +108,32 @@ export const getJobApplications = async (jobPostingId: string) => {
 
   return applications;
 };
+
+export const updateApplicationStatus = async (
+  applicationId: string,
+  status: string,
+) => {
+  const validStatuses = ['PENDING', 'SHORTLISTED', 'INTERVIEWING', 'REJECTED', 'ACCEPTED'];
+  if (!validStatuses.includes(status)) {
+    throw new Error('Invalid status value.');
+  }
+
+  const updateData: any = { status };
+
+  if (status === 'SHORTLISTED') updateData.shortlistedAt = new Date();
+  if (status === 'INTERVIEWING') updateData.interviewedAt = new Date();
+  if (status === 'ACCEPTED' || status === 'REJECTED') updateData.decidedAt = new Date();
+
+  const application = await prisma.application.update({
+    where: { id: applicationId },
+    data: updateData,
+    include: {
+      jobPosting: true,
+      student: {
+        include: { studentProfile: true },
+      },
+    },
+  });
+
+  return application;
+};

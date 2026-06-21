@@ -4,6 +4,7 @@ import {
   getStudentApplications,
   getApplicationById,
   getJobApplications,
+  updateApplicationStatus,
 } from '../services/application.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
 
@@ -58,5 +59,27 @@ export const fetchJobApplications = async (req: Request, res: Response): Promise
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch applications.';
     sendError(res, message, 500);
+  }
+};
+
+export const updateStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      sendError(res, 'Status is required.', 400);
+      return;
+    }
+
+    const application = await updateApplicationStatus(
+      Array.isArray(id) ? id[0] : id,
+      status,
+    );
+
+    sendSuccess(res, application, 'Application status updated successfully.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update status.';
+    sendError(res, message, 400);
   }
 };
