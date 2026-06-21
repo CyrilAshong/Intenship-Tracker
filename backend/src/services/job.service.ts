@@ -6,6 +6,9 @@ interface CreateJobInput {
   title: string;
   description: string;
   skillsRequired: string[];
+  responsibilities?: string[];
+  academicRequirements?: string;
+  imageUrl?: string;
   location?: string;
   type?: InternshipType;
   isPaid?: boolean;
@@ -29,6 +32,9 @@ export const createJob = async (input: CreateJobInput) => {
       title: input.title,
       description: input.description,
       skillsRequired: input.skillsRequired,
+      responsibilities: input.responsibilities ?? [],
+      academicRequirements: input.academicRequirements,
+      imageUrl: input.imageUrl,
       location: input.location,
       type: input.type ?? 'FULL_TIME',
       isPaid: input.isPaid ?? false,
@@ -105,12 +111,12 @@ export const getJobById = async (jobId: string) => {
 export const getCompanyJobs = async (companyId: string) => {
   const jobs = await prisma.jobPosting.findMany({
     where: { companyId },
+    orderBy: { createdAt: 'desc' },
     include: {
       _count: {
         select: { applications: true },
       },
     },
-    orderBy: { createdAt: 'desc' },
   });
   return jobs;
 };

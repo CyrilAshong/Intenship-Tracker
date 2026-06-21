@@ -37,16 +37,19 @@ export interface AuthResponse {
   user: User;
 }
 
-export interface RegistrationResponse {
-  email: string;
-  role: Role;
-}
+// export interface RegistrationResponse {
+//   email: string;
+//   role: Role;
+// }
 
 export interface Job {
   id: string;
   title: string;
   description: string;
   skillsRequired: string[];
+  responsibilities: string[];
+  academicRequirements: string | null;
+  imageUrl: string | null;
   location: string | null;
   type: string;
   isPaid: boolean;

@@ -1,11 +1,5 @@
 import { Request, Response } from 'express';
-import {
-  registerUser,
-  loginUser,
-  getMe,
-  verifyOTP,
-  resendOTP,
-} from '../services/auth.service';
+import { registerUser, loginUser, getMe } from '../services/auth.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
 import { Role } from '@prisma/client';
 
@@ -28,7 +22,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const { user } = await registerUser({
+    const { user, token } = await registerUser({
       email,
       password,
       role,
@@ -38,28 +32,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     sendCreated(res, {
-      email: user.email,
-      role: user.role,
-    }, 'Registration successful. Please check your email for the OTP verification code.');
-
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Registration failed.';
-    sendError(res, message, 400);
-  }
-};
-
-export const verify = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { email, otp } = req.body;
-
-    if (!email || !otp) {
-      sendError(res, 'Email and OTP are required.', 400);
-      return;
-    }
-
-    const { user, token } = await verifyOTP(email, otp);
-
-    sendSuccess(res, {
       token,
       user: {
         id: user.id,
@@ -68,25 +40,10 @@ export const verify = async (req: Request, res: Response): Promise<void> => {
         studentProfile: user.studentProfile,
         companyProfile: user.companyProfile,
       },
-    }, 'Email verified successfully. Welcome to UniIntern!');
+    }, 'Registration successful.');
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Verification failed.';
-    sendError(res, message, 400);
-  }
-};
-
-export const resendOTPHandler = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { email } = req.body;
-    if (!email) {
-      sendError(res, 'Email is required.', 400);
-      return;
-    }
-    const result = await resendOTP(email);
-    sendSuccess(res, result, 'OTP resent successfully.');
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to resend OTP.';
+    const message = error instanceof Error ? error.message : 'Registration failed.';
     sendError(res, message, 400);
   }
 };

@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
   StatusBar,
+  ImageBackground,
 } from 'react-native';
 import { fetchJobById, applyForJob } from '../../services/jobService';
 import { Job } from '../../types';
@@ -180,9 +181,54 @@ const JobDetailScreen = ({ route, navigation }: any) => {
           </Text>
         </View>
 
+        {/* Key Responsibilities */}
+        {job.responsibilities && job.responsibilities.length > 0 && (
+          <View className="mx-4 mb-4 bg-white rounded-2xl p-5 border border-gray-200">
+            <Text className="text-base font-bold text-navy mb-4">
+              Key Responsibilities
+            </Text>
+            {job.responsibilities.map((item, index) => (
+              <View key={index} className="flex-row gap-2 mb-3 items-start">
+                <Text className="text-base mt-0.5">✅</Text>
+                <Text className="flex-1 text-sm text-gray-500 leading-5">
+                  {item}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Academic Requirements */}
+        {job.academicRequirements && (
+          <View className="px-4 pb-4">
+            <Text className="text-base font-bold text-navy mb-2">
+              Academic Requirements
+            </Text>
+            <Text className="text-sm text-gray-500 leading-6">
+              {job.academicRequirements}
+            </Text>
+          </View>
+        )}
+
+        {/* Hero Image */}
+        {job.imageUrl && (
+          <View className="px-4 pb-4">
+            <ImageBackground
+              source={{ uri: job.imageUrl }}
+              className="rounded-2xl overflow-hidden h-40 justify-end"
+              imageStyle={{ borderRadius: 16 }}>
+              <View className="bg-black/30 p-3 rounded-b-2xl">
+                <Text className="text-xs font-semibold text-white">
+                  {job.company.companyProfile?.companyName ?? 'Company'} •{' '}
+                  {job.location ?? 'Global'}
+                </Text>
+              </View>
+            </ImageBackground>
+          </View>
+        )}
+
         <View className="h-24" />
       </ScrollView>
-
       {/* Bottom Apply Bar */}
       <View className="absolute bottom-0 left-0 right-0 flex-row p-4 pb-7 bg-white border-t border-gray-100 gap-2">
         <TouchableOpacity

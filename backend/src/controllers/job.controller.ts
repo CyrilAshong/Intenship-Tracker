@@ -13,6 +13,9 @@ export const postJob = async (req: Request, res: Response): Promise<void> => {
       title,
       description,
       skillsRequired,
+      responsibilities,
+      academicRequirements,
+      imageUrl,
       location,
       type,
       isPaid,
@@ -37,6 +40,9 @@ export const postJob = async (req: Request, res: Response): Promise<void> => {
       title,
       description,
       skillsRequired,
+      responsibilities: Array.isArray(responsibilities) ? responsibilities : undefined,
+      academicRequirements,
+      imageUrl,
       location,
       type,
       isPaid,
@@ -91,3 +97,4 @@ export const fetchCompanyJobs = async (req: Request, res: Response): Promise<voi
     sendError(res, message, 500);
   }
 };
+

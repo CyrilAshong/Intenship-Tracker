@@ -11,7 +11,8 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
-import { registerCompany } from '../../services/authService';
+import { registerCompany, saveToken } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 
 const industries = [
   'Technology',
@@ -26,6 +27,7 @@ const industries = [
 ];
 
 const CompanyRegisterScreen = ({ navigation }: any) => {
+  const { setAuth } = useAuth();
   const [companyName, setCompanyName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [email, setEmail] = useState('');
@@ -42,18 +44,8 @@ const CompanyRegisterScreen = ({ navigation }: any) => {
     try {
       setIsLoading(true);
       const result = await registerCompany(email.trim(), password, companyName);
-      navigation.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'OTPVerification',
-            params: {
-              email: result.email,
-              role: result.role,
-            },
-          },
-        ],
-      });
+      await saveToken(result.token);
+      setAuth(result.user, result.token);
     } catch (error: any) {
       const message = error.response?.data?.message ?? 'Registration failed.';
       Alert.alert('Error', message);

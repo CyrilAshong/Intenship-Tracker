@@ -44,3 +44,23 @@ export const updateApplicationStatus = async (
 ): Promise<void> => {
   await api.patch(`/applications/${applicationId}/status`, { status });
 };
+
+export interface CreateJobInput {
+  title: string;
+  description: string;
+  skillsRequired: string[];
+  responsibilities?: string[];
+  academicRequirements?: string;
+  imageUrl?: string;
+  location?: string;
+  type: string;
+  isPaid: boolean;
+  stipend?: number;
+  duration?: string;
+  vacancies: number;
+  deadline?: string;
+}
+
+export const createJob = async (input: CreateJobInput): Promise<void> => {
+  await api.post('/jobs', input);
+};

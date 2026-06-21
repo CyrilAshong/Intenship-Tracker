@@ -15,7 +15,9 @@ import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
 import StudentTabNavigator from './StudentTabNavigator';
 import JobDetailScreen from '../screens/student/JobDetailScreen';
 
-import CompanyDashboard from '../screens/company/CompanyDashboard';
+import CompanyTabNavigator from './CompanyTabNavigator';
+import ReviewApplicantsScreen from '../screens/company/ReviewApplicantsScreen';
+import PostJobScreen from '../screens/company/PostJobScreen';   
 
 const Stack = createNativeStackNavigator();
 
@@ -49,7 +51,11 @@ const RootNavigator = () => {
             <Stack.Screen name="JobDetail" component={JobDetailScreen} />
           </>
         ) : (
-          <Stack.Screen name="CompanyDashboard" component={CompanyDashboard} />
+          <>
+            <Stack.Screen name="CompanyTabs" component={CompanyTabNavigator} />
+            <Stack.Screen name="ReviewApplicants" component={ReviewApplicantsScreen} />
+            <Stack.Screen name="PostJob" component={PostJobScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
