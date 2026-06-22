@@ -12,6 +12,19 @@ interface RegisterInput {
   companyName?: string;
 }
 
+interface UpdateStudentProfileInput {
+  userId: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  university?: string;
+  course?: string;
+  yearOfStudy?: number;
+  skills?: string[];
+  biography?: string;
+  courseOfStudy?: string;
+}
+
 export const registerUser = async (input: RegisterInput) => {
   const { password, role, firstName, lastName, companyName } = input;
   const email = input.email.trim().toLowerCase();
@@ -97,5 +110,34 @@ export const getMe = async (userId: string) => {
   });
 
   if (!user) throw new Error('User not found.');
+  return user;
+};
+
+export const updateStudentProfile = async (input: UpdateStudentProfileInput) => {
+  const { userId, ...data } = input;
+
+  await prisma.studentProfile.update({
+    where: { userId },
+    data: {
+      ...(data.firstName !== undefined && { firstName: data.firstName }),
+      ...(data.lastName !== undefined && { lastName: data.lastName }),
+      ...(data.phone !== undefined && { phone: data.phone }),
+      ...(data.university !== undefined && { university: data.university }),
+      ...(data.course !== undefined && { course: data.course }),
+      ...(data.yearOfStudy !== undefined && { yearOfStudy: data.yearOfStudy }),
+      ...(data.skills !== undefined && { skills: data.skills }),
+      ...(data.biography !== undefined && { biography: data.biography }),
+      ...(data.courseOfStudy !== undefined && { courseOfStudy: data.courseOfStudy }),
+    },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      studentProfile: true,
+      companyProfile: true,
+    },
+  });
+
   return user;
 };

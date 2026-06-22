@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, getMe } from '../services/auth.service';
+import { registerUser, loginUser, getMe, updateStudentProfile } from '../services/auth.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
 import { Role } from '@prisma/client';
 
@@ -91,5 +91,45 @@ export const me = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Could not fetch user.';
     sendError(res, message, 404);
+  }
+};
+
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      firstName,
+      lastName,
+      phone,
+      university,
+      course,
+      yearOfStudy,
+      skills,
+      biography,
+      courseOfStudy,
+    } = req.body;
+
+    const user = await updateStudentProfile({
+      userId: req.user!.userId,
+      firstName,
+      lastName,
+      phone,
+      university,
+      course,
+      yearOfStudy: yearOfStudy ? parseInt(yearOfStudy) : undefined,
+      skills: Array.isArray(skills) ? skills : skills?.split(',').map((s: string) => s.trim()).filter(Boolean),
+      biography,
+      courseOfStudy,
+    });
+
+    sendSuccess(res, {
+      id: user!.id,
+      email: user!.email,
+      role: user!.role,
+      studentProfile: user!.studentProfile,
+      companyProfile: user!.companyProfile,
+    }, 'Profile updated successfully.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update profile.';
+    sendError(res, message, 400);
   }
 };
