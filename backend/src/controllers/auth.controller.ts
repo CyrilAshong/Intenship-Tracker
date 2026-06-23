@@ -114,7 +114,6 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       lastName,
       phone,
       university,
-      course,
       yearOfStudy: yearOfStudy ? parseInt(yearOfStudy) : undefined,
       skills: Array.isArray(skills) ? skills : skills?.split(',').map((s: string) => s.trim()).filter(Boolean),
       biography,

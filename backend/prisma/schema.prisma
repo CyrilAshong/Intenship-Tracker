@@ -68,7 +68,6 @@ model StudentProfile {
   lastName           String
   phone              String?
   university         String?
-  course             String?
   yearOfStudy        Int?
   skills             String[]
   biography          String?            @db.Text

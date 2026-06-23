@@ -18,7 +18,6 @@ interface UpdateStudentProfileInput {
   lastName?: string;
   phone?: string;
   university?: string;
-  course?: string;
   yearOfStudy?: number;
   skills?: string[];
   biography?: string;
@@ -123,7 +122,6 @@ export const updateStudentProfile = async (input: UpdateStudentProfileInput) => 
       ...(data.lastName !== undefined && { lastName: data.lastName }),
       ...(data.phone !== undefined && { phone: data.phone }),
       ...(data.university !== undefined && { university: data.university }),
-      ...(data.course !== undefined && { course: data.course }),
       ...(data.yearOfStudy !== undefined && { yearOfStudy: data.yearOfStudy }),
       ...(data.skills !== undefined && { skills: data.skills }),
       ...(data.biography !== undefined && { biography: data.biography }),
