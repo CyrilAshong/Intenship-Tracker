@@ -6,7 +6,7 @@ export interface StudentProfile {
   lastName: string;
   phone: string | null;
   university: string | null;
-  course: string | null;
+  courseOfStudy: string | null;
   yearOfStudy: number | null;
   skills: string[];
   biography: string | null;

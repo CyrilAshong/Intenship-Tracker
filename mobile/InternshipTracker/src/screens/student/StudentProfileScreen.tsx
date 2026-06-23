@@ -36,7 +36,7 @@ const StudentProfileScreen = ({ navigation }: any) => {
             {profile?.university ?? 'University not set'}
           </Text>
           <Text className="text-sm text-gray-400 mb-3">
-            {profile?.course ?? 'Course not set'}
+            {profile?.courseOfStudy ?? 'Course not set'}
             {profile?.yearOfStudy ? ` (Year ${profile.yearOfStudy})` : ''}
           </Text>
           <TouchableOpacity
@@ -58,10 +58,10 @@ const StudentProfileScreen = ({ navigation }: any) => {
                 <Text className="text-xs text-gray-400">✎ Edit</Text>
               </TouchableOpacity>
             </View>
-            <View className="mb-3">
-              <Text className="text-xs text-gray-400 mb-1">Course of Study</Text>
-              <Text className="text-base font-semibold text-navy">
-                {profile?.courseOfStudy ?? profile?.course ?? 'Not set'}
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-sm text-gray-400">Course of Study</Text>
+              <Text className="text-sm font-semibold text-navy">
+                {profile?.courseOfStudy ?? 'Not set'}
               </Text>
             </View>
             <View className="flex-row justify-between items-center mb-3">
@@ -117,17 +117,26 @@ const StudentProfileScreen = ({ navigation }: any) => {
             <Text className="text-xs font-bold text-gray-400 tracking-wide mb-2">
               LANGUAGES
             </Text>
-            {profile?.biography ? (
-              <Text className="text-xs text-gray-500">{profile.biography}</Text>
-            ) : (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('EditProfile')}>
-                <Text className="text-xs text-gray-400">
-                  + Add languages in your biography
-                </Text>
-              </TouchableOpacity>
-            )}
+            <View className="flex-row items-center gap-1.5">
+              <View className="w-2 h-2 rounded-full bg-teal" />
+              <Text className="text-xs text-gray-500">English (Native)</Text>
+            </View>
           </View>
+
+          {/* Biography */}
+          {profile?.biography ? (
+            <View className="bg-white rounded-2xl p-5 shadow-sm">
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-base font-bold text-navy">About Me</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+                  <Text className="text-xs text-gray-400">✎ Edit</Text>
+                </TouchableOpacity>
+              </View>
+              <Text className="text-sm text-gray-500 leading-5">
+                {profile.biography}
+              </Text>
+            </View>
+          ) : null}
 
           {/* Experience & Projects */}
           <View className="bg-white rounded-2xl p-5 shadow-sm">

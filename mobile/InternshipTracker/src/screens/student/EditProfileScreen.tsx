@@ -22,7 +22,6 @@ const EditProfileScreen = ({ navigation }: any) => {
   const [lastName, setLastName] = useState(profile?.lastName ?? '');
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [university, setUniversity] = useState(profile?.university ?? '');
-  const [course, setCourse] = useState(profile?.course ?? '');
   const [courseOfStudy, setCourseOfStudy] = useState(
     (profile as any)?.courseOfStudy ?? '',
   );
@@ -48,7 +47,6 @@ const EditProfileScreen = ({ navigation }: any) => {
         lastName,
         phone: phone || undefined,
         university: university || undefined,
-        course: course || undefined,
         courseOfStudy: courseOfStudy || undefined,
         yearOfStudy: yearOfStudy ? parseInt(yearOfStudy) : undefined,
         skills,
@@ -58,7 +56,7 @@ const EditProfileScreen = ({ navigation }: any) => {
       const updatedUser = response.data.data;
       const savedToken = await (await import('expo-secure-store')).getItemAsync('token');
       setAuth(updatedUser, savedToken ?? '');
-      
+
       Alert.alert('Success', 'Profile updated successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
@@ -141,20 +139,6 @@ const EditProfileScreen = ({ navigation }: any) => {
               placeholderTextColor="#9ca3af"
               value={university}
               onChangeText={setUniversity}
-            />
-          </View>
-
-          {/* Course */}
-          <View>
-            <Text className="text-sm font-semibold text-navy mb-1.5">
-              Course
-            </Text>
-            <TextInput
-              className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-navy"
-              placeholder="e.g. BSc Computer Science"
-              placeholderTextColor="#9ca3af"
-              value={course}
-              onChangeText={setCourse}
             />
           </View>
 
