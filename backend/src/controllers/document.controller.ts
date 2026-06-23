@@ -26,6 +26,7 @@ export const uploadDoc = async (req: Request, res: Response): Promise<void> => {
 
     sendCreated(res, document, 'Document uploaded successfully.');
   } catch (error) {
+    console.error('Upload error:', error);
     const message = error instanceof Error ? error.message : 'Upload failed.';
     sendError(res, message, 500);
   }
