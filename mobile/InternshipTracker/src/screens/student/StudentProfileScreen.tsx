@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const StudentProfileScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
-  const profile = user?.studentProfile;
+  const profile = user?.studentProfile as any;
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -39,7 +39,9 @@ const StudentProfileScreen = ({ navigation }: any) => {
             {profile?.course ?? 'Course not set'}
             {profile?.yearOfStudy ? ` (Year ${profile.yearOfStudy})` : ''}
           </Text>
-          <TouchableOpacity className="bg-navy rounded-full px-6 py-2.5">
+          <TouchableOpacity
+            className="bg-navy rounded-full px-6 py-2.5"
+            onPress={() => navigation.navigate('EditProfile')}>
             <Text className="text-sm font-semibold text-white">Edit Profile</Text>
           </TouchableOpacity>
         </View>
@@ -48,17 +50,28 @@ const StudentProfileScreen = ({ navigation }: any) => {
 
           {/* Academic Overview */}
           <View className="bg-white rounded-2xl p-5 shadow-sm">
-            <Text className="text-base font-bold text-navy mb-3">
-              Academic Overview
-            </Text>
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-base font-bold text-navy">
+                Academic Overview
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+                <Text className="text-xs text-gray-400">✎ Edit</Text>
+              </TouchableOpacity>
+            </View>
             <View className="mb-3">
               <Text className="text-xs text-gray-400 mb-1">Course of Study</Text>
               <Text className="text-base font-semibold text-navy">
-                {profile?.course ?? 'Not set'}
+                {profile?.courseOfStudy ?? profile?.course ?? 'Not set'}
               </Text>
             </View>
             <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-sm text-gray-400">Expected Grad</Text>
+              <Text className="text-sm text-gray-400">University</Text>
+              <Text className="text-sm font-semibold text-navy">
+                {profile?.university ?? 'Not set'}
+              </Text>
+            </View>
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-sm text-gray-400">Year of Study</Text>
               <Text className="text-sm font-semibold text-navy">
                 {profile?.yearOfStudy ? `Year ${profile.yearOfStudy}` : 'Not set'}
               </Text>
@@ -79,20 +92,22 @@ const StudentProfileScreen = ({ navigation }: any) => {
               <Text className="text-base font-bold text-navy">
                 Technical Skills
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
                 <Text className="text-xs text-gray-400">✎ Edit</Text>
               </TouchableOpacity>
             </View>
             {profile?.skills && profile.skills.length > 0 ? (
               <View className="flex-row flex-wrap gap-2">
-                {profile.skills.map((skill, index) => (
+                {profile.skills.map((skill: string, index: number) => (
                   <View key={index} className="bg-gray-100 rounded-full px-3 py-1.5">
                     <Text className="text-xs font-medium text-navy">{skill}</Text>
                   </View>
                 ))}
               </View>
             ) : (
-              <TouchableOpacity className="border border-dashed border-gray-200 rounded-xl py-3 items-center">
+              <TouchableOpacity
+                className="border border-dashed border-gray-200 rounded-xl py-3 items-center"
+                onPress={() => navigation.navigate('EditProfile')}>
                 <Text className="text-sm text-gray-400">+ Add your skills</Text>
               </TouchableOpacity>
             )}
@@ -102,12 +117,16 @@ const StudentProfileScreen = ({ navigation }: any) => {
             <Text className="text-xs font-bold text-gray-400 tracking-wide mb-2">
               LANGUAGES
             </Text>
-            <View className="flex-row flex-wrap gap-3">
-              <View className="flex-row items-center gap-1.5">
-                <View className="w-2 h-2 rounded-full bg-teal" />
-                <Text className="text-xs text-gray-500">English (Native)</Text>
-              </View>
-            </View>
+            {profile?.biography ? (
+              <Text className="text-xs text-gray-500">{profile.biography}</Text>
+            ) : (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('EditProfile')}>
+                <Text className="text-xs text-gray-400">
+                  + Add languages in your biography
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Experience & Projects */}
@@ -115,11 +134,11 @@ const StudentProfileScreen = ({ navigation }: any) => {
             <Text className="text-base font-bold text-navy mb-3">
               Experience &amp; Projects
             </Text>
-            <TouchableOpacity className="border border-dashed border-gray-200 rounded-xl py-4 items-center">
+            <View className="border border-dashed border-gray-200 rounded-xl py-4 items-center">
               <Text className="text-sm text-gray-400">
-                + Add a project or experience
+                Coming soon — add projects &amp; experience
               </Text>
-            </TouchableOpacity>
+            </View>
           </View>
 
           {/* Internship Interests */}
@@ -127,22 +146,11 @@ const StudentProfileScreen = ({ navigation }: any) => {
             <Text className="text-base font-bold text-navy mb-3">
               Internship Interests
             </Text>
-            <TouchableOpacity className="flex-row items-center gap-3 bg-gray-50 rounded-xl p-3 mb-2">
-              <View className="w-9 h-9 rounded-lg bg-white items-center justify-center border border-gray-100">
-                <Text className="text-lg">💻</Text>
-              </View>
-              <View>
-                <Text className="text-sm font-semibold text-navy">
-                  Software Engineering
-                </Text>
-                <Text className="text-xs text-gray-400">
-                  Full-stack, Backend, Mobile
-                </Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="border border-dashed border-gray-200 rounded-xl py-3 items-center">
-              <Text className="text-sm text-gray-400">+ Add another interest</Text>
-            </TouchableOpacity>
+            <View className="border border-dashed border-gray-200 rounded-xl py-4 items-center">
+              <Text className="text-sm text-gray-400">
+                Coming soon — add your internship interests
+              </Text>
+            </View>
           </View>
 
           {/* Documents */}

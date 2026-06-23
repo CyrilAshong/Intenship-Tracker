@@ -14,6 +14,9 @@ import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
 
 import StudentTabNavigator from './StudentTabNavigator';
 import JobDetailScreen from '../screens/student/JobDetailScreen';
+import EditProfileScreen from '../screens/student/EditProfileScreen';
+import UploadDocumentsScreen from '../screens/student/UploadDocumentsScreen';
+
 
 import CompanyTabNavigator from './CompanyTabNavigator';
 import ReviewApplicantsScreen from '../screens/company/ReviewApplicantsScreen';
@@ -49,6 +52,9 @@ const RootNavigator = () => {
           <>
             <Stack.Screen name="StudentTabs" component={StudentTabNavigator} />
             <Stack.Screen name="JobDetail" component={JobDetailScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="UploadDocuments" component={UploadDocumentsScreen} />
+
           </>
         ) : (
           <>
