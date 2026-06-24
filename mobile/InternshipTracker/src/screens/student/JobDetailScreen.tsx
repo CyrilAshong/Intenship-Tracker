@@ -13,6 +13,13 @@ import {
 } from 'react-native';
 import { fetchJobById, applyForJob } from '../../services/jobService';
 import { Job } from '../../types';
+import api from '../../services/api';
+
+interface Document {
+  id: string;
+  type: 'CV' | 'LETTER';
+  fileName: string;
+}
 
 const JobDetailScreen = ({ route, navigation }: any) => {
   const { jobId } = route.params;
@@ -21,6 +28,8 @@ const JobDetailScreen = ({ route, navigation }: any) => {
   const [isApplying, setIsApplying] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [coverNote, setCoverNote] = useState('');
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
     const loadJob = async () => {
@@ -37,7 +46,25 @@ const JobDetailScreen = ({ route, navigation }: any) => {
     loadJob();
   }, [jobId]);
 
+  const loadDocuments = async () => {
+    try {
+      const response = await api.get('/documents');
+      setDocuments(response.data.data);
+    } catch (error) {
+      // silent fail
+    }
+  };
+
+  const handleOpenModal = () => {
+    loadDocuments();
+    setModalVisible(true);
+  };
+
   const handleApply = async () => {
+    if (!confirmed) {
+      Alert.alert('Error', 'Please confirm that your documents are authentic.');
+      return;
+    }
     try {
       setIsApplying(true);
       await applyForJob(jobId, coverNote);
@@ -55,6 +82,9 @@ const JobDetailScreen = ({ route, navigation }: any) => {
       setIsApplying(false);
     }
   };
+
+  const cvDoc = documents.find((d) => d.type === 'CV');
+  const letterDoc = documents.find((d) => d.type === 'LETTER');
 
   if (isLoading) {
     return (
@@ -229,14 +259,15 @@ const JobDetailScreen = ({ route, navigation }: any) => {
 
         <View className="h-24" />
       </ScrollView>
+
       {/* Bottom Apply Bar */}
       <View className="absolute bottom-0 left-0 right-0 flex-row p-4 pb-7 bg-white border-t border-gray-100 gap-2">
         <TouchableOpacity
           className="flex-1 bg-navy rounded-xl py-4 items-center"
-          onPress={() => setModalVisible(true)}>
+          onPress={handleOpenModal}>
           <Text className="text-white text-base font-bold">Apply Now →</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="w-13 px-4 rounded-xl border border-gray-200 items-center justify-center">
+        <TouchableOpacity className="px-4 rounded-xl border border-gray-200 items-center justify-center">
           <Text className="text-lg text-gray-500">⋮</Text>
         </TouchableOpacity>
       </View>
@@ -264,20 +295,43 @@ const JobDetailScreen = ({ route, navigation }: any) => {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
+
+              {/* CV */}
               <Text className="text-base font-bold text-navy mb-1">CV PDF</Text>
               <Text className="text-sm text-gray-500 mb-2 leading-5">
                 Upload your latest professional curriculum vitae in PDF format.
               </Text>
-              <TouchableOpacity className="border border-gray-200 rounded-xl p-6 items-center mb-4">
-                <View className="w-12 h-12 rounded-full bg-blue-50 items-center justify-center mb-2">
-                  <Text className="text-xl">📄</Text>
+              {cvDoc ? (
+                <View className="flex-row items-center bg-teal-light rounded-xl p-3 mb-4 border border-teal">
+                  <Text className="text-lg mr-2">📄</Text>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-navy" numberOfLines={1}>
+                      {cvDoc.fileName}
+                    </Text>
+                    <Text className="text-xs text-teal-dark">CV ready ✓</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => navigation.navigate('UploadDocuments')}>
+                    <Text className="text-xs text-navy font-semibold">Change</Text>
+                  </TouchableOpacity>
                 </View>
-                <Text className="text-sm font-semibold text-navy mb-1">
-                  Click to upload CV
-                </Text>
-                <Text className="text-xs text-gray-400">PDF max 5MB</Text>
-              </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  className="border border-gray-200 rounded-xl p-6 items-center mb-4"
+                  onPress={() => {
+                    setModalVisible(false);
+                    navigation.navigate('UploadDocuments');
+                  }}>
+                  <View className="w-12 h-12 rounded-full bg-blue-50 items-center justify-center mb-2">
+                    <Text className="text-xl">📄</Text>
+                  </View>
+                  <Text className="text-sm font-semibold text-navy mb-1">
+                    Click to upload CV
+                  </Text>
+                  <Text className="text-xs text-gray-400">PDF max 5MB</Text>
+                </TouchableOpacity>
+              )}
 
+              {/* Letter */}
               <Text className="text-base font-bold text-navy mb-1">
                 University Endorsement Letter
               </Text>
@@ -285,16 +339,37 @@ const JobDetailScreen = ({ route, navigation }: any) => {
                 A signed letter from your Career Office confirming your academic
                 eligibility.
               </Text>
-              <TouchableOpacity className="border border-gray-200 rounded-xl p-6 items-center mb-4">
-                <View className="w-12 h-12 rounded-full bg-teal-light items-center justify-center mb-2">
-                  <Text className="text-xl">✅</Text>
+              {letterDoc ? (
+                <View className="flex-row items-center bg-teal-light rounded-xl p-3 mb-4 border border-teal">
+                  <Text className="text-lg mr-2">✅</Text>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-navy" numberOfLines={1}>
+                      {letterDoc.fileName}
+                    </Text>
+                    <Text className="text-xs text-teal-dark">Letter ready ✓</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => navigation.navigate('UploadDocuments')}>
+                    <Text className="text-xs text-navy font-semibold">Change</Text>
+                  </TouchableOpacity>
                 </View>
-                <Text className="text-sm font-semibold text-navy mb-1">
-                  Click to upload Letter
-                </Text>
-                <Text className="text-xs text-gray-400">PDF, DOCX max 10MB</Text>
-              </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  className="border border-gray-200 rounded-xl p-6 items-center mb-4"
+                  onPress={() => {
+                    setModalVisible(false);
+                    navigation.navigate('UploadDocuments');
+                  }}>
+                  <View className="w-12 h-12 rounded-full bg-teal-light items-center justify-center mb-2">
+                    <Text className="text-xl">✅</Text>
+                  </View>
+                  <Text className="text-sm font-semibold text-navy mb-1">
+                    Click to upload Letter
+                  </Text>
+                  <Text className="text-xs text-gray-400">PDF, DOCX max 10MB</Text>
+                </TouchableOpacity>
+              )}
 
+              {/* Cover Note */}
               <TextInput
                 className="border border-gray-200 rounded-xl p-3 text-sm text-navy mb-4"
                 placeholder="Add a cover note (optional)..."
@@ -307,15 +382,24 @@ const JobDetailScreen = ({ route, navigation }: any) => {
                 onChangeText={setCoverNote}
               />
 
-              <View className="flex-row gap-2 mb-5 items-start">
-                <View className="w-4.5 h-4.5 border border-gray-300 rounded mt-0.5" />
+              {/* Confirm */}
+              <TouchableOpacity
+                className="flex-row gap-2 mb-5 items-start"
+                onPress={() => setConfirmed(!confirmed)}>
+                <View className={`w-5 h-5 rounded border mt-0.5 items-center justify-center ${
+                  confirmed ? 'bg-navy border-navy' : 'border-gray-300'
+                }`}>
+                  {confirmed && <Text className="text-white text-xs">✓</Text>}
+                </View>
                 <Text className="flex-1 text-xs text-gray-500 leading-5">
                   I confirm that all uploaded documents are authentic and up to
                   date according to university guidelines.
                 </Text>
-              </View>
+              </TouchableOpacity>
 
-              <TouchableOpacity className="border border-gray-200 rounded-full py-3.5 items-center mb-2">
+              {/* Buttons */}
+              <TouchableOpacity
+                className="border border-gray-200 rounded-full py-3.5 items-center mb-2">
                 <Text className="text-sm font-semibold text-navy">
                   Save as Draft
                 </Text>
