@@ -101,11 +101,12 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       lastName,
       phone,
       university,
-      course,
       yearOfStudy,
       skills,
       biography,
       courseOfStudy,
+      avatarUrl,
+      coverUrl,
     } = req.body;
 
     const user = await updateStudentProfile({
@@ -118,6 +119,8 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       skills: Array.isArray(skills) ? skills : skills?.split(',').map((s: string) => s.trim()).filter(Boolean),
       biography,
       courseOfStudy,
+      avatarUrl,
+      coverUrl,
     });
 
     sendSuccess(res, {

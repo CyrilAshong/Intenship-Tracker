@@ -22,6 +22,8 @@ interface UpdateStudentProfileInput {
   skills?: string[];
   biography?: string;
   courseOfStudy?: string;
+  avatarUrl?: string;
+  coverUrl?: string;
 }
 
 export const registerUser = async (input: RegisterInput) => {
@@ -126,6 +128,8 @@ export const updateStudentProfile = async (input: UpdateStudentProfileInput) => 
       ...(data.skills !== undefined && { skills: data.skills }),
       ...(data.biography !== undefined && { biography: data.biography }),
       ...(data.courseOfStudy !== undefined && { courseOfStudy: data.courseOfStudy }),
+      ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
+      ...(data.coverUrl !== undefined && { coverUrl: data.coverUrl }),
     },
   });
 

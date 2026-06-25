@@ -10,7 +10,8 @@ export interface StudentProfile {
   yearOfStudy: number | null;
   skills: string[];
   biography: string | null;
-  gpa: number | null;
+  avatarUrl: string | null;
+  coverUrl: string | null;
   verificationStatus: string;
 }
 

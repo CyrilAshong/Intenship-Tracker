@@ -1,10 +1,68 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
+import { uploadImageToCloudinary } from '../../services/cloudinaryService';
+import api from '../../services/api';
 
 const StudentProfileScreen = ({ navigation }: any) => {
-  const { user, logout } = useAuth();
+  const { user, setAuth, logout } = useAuth();
   const profile = user?.studentProfile as any;
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  const handleImageUpload = async (type: 'avatar' | 'cover') => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Permission needed', 'Please allow access to your photos.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'] as any,
+        allowsEditing: true,
+        aspect: type === 'avatar' ? [1, 1] : [16, 9],
+        quality: 0.8,
+      });
+
+      if (result.canceled) return;
+
+      const imageUri = result.assets[0].uri;
+
+      if (type === 'avatar') setUploadingAvatar(true);
+      else setUploadingCover(true);
+
+      const url = await uploadImageToCloudinary(
+        imageUri,
+        type === 'avatar' ? 'avatars' : 'covers',
+      );
+
+      const response = await api.patch('/auth/profile', {
+        ...(type === 'avatar' ? { avatarUrl: url } : { coverUrl: url }),
+      });
+
+      const updatedUser = response.data.data;
+      const token = await (await import('expo-secure-store')).getItemAsync('token');
+      setAuth(updatedUser, token ?? '');
+
+      Alert.alert('Success', 'Photo updated successfully!');
+    } catch (error: any) {
+      Alert.alert('Error', error?.message ?? 'Failed to upload image.');
+    } finally {
+      setUploadingAvatar(false);
+      setUploadingCover(false);
+    }
+  };
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -14,21 +72,72 @@ const StudentProfileScreen = ({ navigation }: any) => {
         {/* Header */}
         <View className="flex-row justify-between items-center px-4 pt-14 pb-3 bg-white border-b border-gray-100">
           <Text className="text-lg font-bold text-navy">🎓 UniIntern</Text>
-          <View className="w-9 h-9 rounded-full bg-navy items-center justify-center">
-            <Text className="text-sm font-bold text-white">
-              {profile?.firstName?.charAt(0) ?? 'S'}
-            </Text>
+          <View className="w-9 h-9 rounded-full bg-navy items-center justify-center overflow-hidden">
+            {profile?.avatarUrl ? (
+              <Image
+                source={{ uri: profile.avatarUrl }}
+                style={{ width: 36, height: 36, borderRadius: 18 }}
+              />
+            ) : (
+              <Text className="text-sm font-bold text-white">
+                {profile?.firstName?.charAt(0) ?? 'S'}
+              </Text>
+            )}
           </View>
         </View>
 
-        {/* Cover + Avatar */}
-        <View className="bg-gray-200 h-24" />
+        {/* Cover Photo */}
+        <TouchableOpacity
+          onPress={() => handleImageUpload('cover')}
+          disabled={uploadingCover}
+          activeOpacity={0.9}>
+          {profile?.coverUrl ? (
+            <View>
+              <Image
+                source={{ uri: profile.coverUrl }}
+                style={{ width: '100%', height: 128 }}
+                resizeMode="cover"
+              />
+              <View className="absolute bottom-2 right-2 bg-black/40 rounded-full px-2 py-1">
+                <Text className="text-white text-xs">✎ Edit cover</Text>
+              </View>
+            </View>
+          ) : (
+            <View className="w-full h-32 bg-gray-200 items-center justify-center">
+              {uploadingCover ? (
+                <ActivityIndicator color="#1a2b4a" />
+              ) : (
+                <Text className="text-xs text-gray-400">📷 Tap to add cover photo</Text>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
+
+        {/* Avatar + Name */}
         <View className="items-center -mt-12 px-4">
-          <View className="w-24 h-24 rounded-full bg-navy items-center justify-center border-4 border-white">
-            <Text className="text-3xl font-bold text-white">
-              {profile?.firstName?.charAt(0) ?? 'S'}
-            </Text>
-          </View>
+          <TouchableOpacity
+            onPress={() => handleImageUpload('avatar')}
+            disabled={uploadingAvatar}
+            activeOpacity={0.9}>
+            <View className="w-24 h-24 rounded-full bg-navy items-center justify-center border-4 border-white overflow-hidden">
+              {uploadingAvatar ? (
+                <ActivityIndicator color="#fff" />
+              ) : profile?.avatarUrl ? (
+                <Image
+                  source={{ uri: profile.avatarUrl }}
+                  style={{ width: 96, height: 96, borderRadius: 48 }}
+                />
+              ) : (
+                <Text className="text-3xl font-bold text-white">
+                  {profile?.firstName?.charAt(0) ?? 'S'}
+                </Text>
+              )}
+            </View>
+            <View className="absolute bottom-0 right-0 bg-navy rounded-full w-7 h-7 items-center justify-center border-2 border-white">
+              <Text className="text-white text-xs">📷</Text>
+            </View>
+          </TouchableOpacity>
+
           <Text className="text-xl font-bold text-navy mt-3">
             {profile?.firstName} {profile?.lastName}
           </Text>
@@ -50,34 +159,34 @@ const StudentProfileScreen = ({ navigation }: any) => {
 
           {/* Academic Overview */}
           <View className="bg-white rounded-2xl p-5 shadow-sm">
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-base font-bold text-navy">
-                Academic Overview
-              </Text>
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-base font-bold text-navy">Academic Overview</Text>
               <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
                 <Text className="text-xs text-gray-400">✎ Edit</Text>
               </TouchableOpacity>
             </View>
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-sm text-gray-400">Course of Study</Text>
-              <Text className="text-sm font-semibold text-navy">
-                {profile?.courseOfStudy ?? 'Not set'}
-              </Text>
-            </View>
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-sm text-gray-400">University</Text>
-              <Text className="text-sm font-semibold text-navy">
-                {profile?.university ?? 'Not set'}
-              </Text>
-            </View>
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-sm text-gray-400">Year of Study</Text>
-              <Text className="text-sm font-semibold text-navy">
-                {profile?.yearOfStudy ? `Year ${profile.yearOfStudy}` : 'Not set'}
-              </Text>
+            <View className="gap-3">
+              <View className="flex-row justify-between items-center py-2.5 border-b border-gray-50">
+                <Text className="text-sm text-gray-400">Course of Study</Text>
+                <Text className="text-sm font-semibold text-navy">
+                  {profile?.courseOfStudy ?? '—'}
+                </Text>
+              </View>
+              <View className="flex-row justify-between items-center py-2.5 border-b border-gray-50">
+                <Text className="text-sm text-gray-400">University</Text>
+                <Text className="text-sm font-semibold text-navy">
+                  {profile?.university ?? '—'}
+                </Text>
+              </View>
+              <View className="flex-row justify-between items-center py-2.5">
+                <Text className="text-sm text-gray-400">Year of Study</Text>
+                <Text className="text-sm font-semibold text-navy">
+                  {profile?.yearOfStudy ? `Year ${profile.yearOfStudy}` : '—'}
+                </Text>
+              </View>
             </View>
             {profile?.verificationStatus === 'VERIFIED' && (
-              <View className="bg-teal-light rounded-lg py-2 px-3 flex-row items-center gap-2">
+              <View className="bg-teal-light rounded-lg py-2 px-3 flex-row items-center gap-2 mt-3">
                 <Text className="text-sm">✅</Text>
                 <Text className="text-xs font-semibold text-teal-dark">
                   Verified by Registrar
@@ -89,9 +198,7 @@ const StudentProfileScreen = ({ navigation }: any) => {
           {/* Technical Skills */}
           <View className="bg-white rounded-2xl p-5 shadow-sm">
             <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-base font-bold text-navy">
-                Technical Skills
-              </Text>
+              <Text className="text-base font-bold text-navy">Technical Skills</Text>
               <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
                 <Text className="text-xs text-gray-400">✎ Edit</Text>
               </TouchableOpacity>
@@ -111,9 +218,7 @@ const StudentProfileScreen = ({ navigation }: any) => {
                 <Text className="text-sm text-gray-400">+ Add your skills</Text>
               </TouchableOpacity>
             )}
-
             <View className="h-px bg-gray-100 my-4" />
-
             <Text className="text-xs font-bold text-gray-400 tracking-wide mb-2">
               LANGUAGES
             </Text>
@@ -171,9 +276,7 @@ const StudentProfileScreen = ({ navigation }: any) => {
               <View className="flex-row items-center gap-3">
                 <Text className="text-lg">📄</Text>
                 <View>
-                  <Text className="text-sm font-semibold text-navy">
-                    Curriculum Vitae
-                  </Text>
+                  <Text className="text-sm font-semibold text-navy">Curriculum Vitae</Text>
                   <Text className="text-xs text-gray-400">Manage your CV</Text>
                 </View>
               </View>
@@ -188,9 +291,7 @@ const StudentProfileScreen = ({ navigation }: any) => {
                   <Text className="text-sm font-semibold text-navy">
                     University Endorsement Letter
                   </Text>
-                  <Text className="text-xs text-gray-400">
-                    Manage your letter
-                  </Text>
+                  <Text className="text-xs text-gray-400">Manage your letter</Text>
                 </View>
               </View>
               <Text className="text-gray-400">→</Text>
