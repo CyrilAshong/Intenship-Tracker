@@ -11,7 +11,7 @@ import {
   StatusBar,
   ImageBackground,
 } from 'react-native';
-import { fetchJobById, applyForJob } from '../../services/jobService';
+import { fetchJobById, applyForJob, fetchMyApplications } from '../../services/jobService';
 import { Job } from '../../types';
 import api from '../../services/api';
 
@@ -30,12 +30,21 @@ const JobDetailScreen = ({ route, navigation }: any) => {
   const [coverNote, setCoverNote] = useState('');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [confirmed, setConfirmed] = useState(false);
+  const [existingApplication, setExistingApplication] = useState<{ status: string } | null>(null);
 
   useEffect(() => {
     const loadJob = async () => {
       try {
         const data = await fetchJobById(jobId);
         setJob(data);
+
+        const applications = await fetchMyApplications();
+        const existing = applications.find(
+          (app: any) => app.jobPosting.id === jobId,
+        );
+        if (existing) {
+          setExistingApplication({ status: existing.status });
+        }
       } catch (error) {
         Alert.alert('Error', 'Failed to load job details.');
         navigation.goBack();
@@ -145,44 +154,48 @@ const JobDetailScreen = ({ route, navigation }: any) => {
         </View>
 
         {/* Info Cards */}
-        <View className="flex-row flex-wrap px-4 gap-2 mb-4">
-          <View className="flex-1 min-w-[45%] bg-white rounded-xl p-4 border border-gray-200">
-            <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
-              STIPEND
-            </Text>
-            <Text className="text-lg font-bold text-navy">
-              {job.isPaid ? `GH₵${job.stipend}/mo` : 'Unpaid'}
-            </Text>
+        <View className="px-4 mb-4">
+          <View className="flex-row gap-2 mb-2">
+            <View className="flex-1 bg-white rounded-xl p-4 border border-gray-200">
+              <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
+                STIPEND
+              </Text>
+              <Text className="text-lg font-bold text-navy">
+                {job.isPaid ? `GH₵${job.stipend}/mo` : 'Unpaid'}
+              </Text>
+            </View>
+            <View className="flex-1 bg-white rounded-xl p-4 border border-gray-200">
+              <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
+                DEADLINE
+              </Text>
+              <Text className="text-lg font-bold text-red-500">
+                {job.deadline
+                  ? new Date(job.deadline).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                    })
+                  : 'Open'}
+              </Text>
+            </View>
           </View>
-          <View className="flex-1 min-w-[45%] bg-white rounded-xl p-4 border border-gray-200">
-            <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
-              DEADLINE
-            </Text>
-            <Text className="text-lg font-bold text-red-500">
-              {job.deadline
-                ? new Date(job.deadline).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                  })
-                : 'Open'}
-            </Text>
-          </View>
-          <View className="flex-1 min-w-[45%] bg-white rounded-xl p-4 border border-gray-200">
-            <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
-              APPLICANTS
-            </Text>
-            <Text className="text-lg font-bold text-navy">
-              {job._count.applications}
-            </Text>
-          </View>
-          <View className="flex-1 min-w-[45%] bg-white rounded-xl p-4 border border-gray-200">
-            <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
-              LEVEL
-            </Text>
-            <Text className="text-lg font-bold text-navy">Undergrad</Text>
+          <View className="flex-row gap-2">
+            <View className="flex-1 bg-white rounded-xl p-4 border border-gray-200">
+              <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
+                APPLICANTS
+              </Text>
+              <Text className="text-lg font-bold text-navy">
+                {job._count.applications}
+              </Text>
+            </View>
+            <View className="flex-1 bg-white rounded-xl p-4 border border-gray-200">
+              <Text className="text-[10px] font-semibold text-gray-400 tracking-wide mb-1">
+                LEVEL
+              </Text>
+              <Text className="text-lg font-bold text-navy">Undergrad</Text>
+            </View>
           </View>
         </View>
-
+        
         {/* Skills */}
         <View className="px-4 pb-4">
           <Text className="text-base font-bold text-navy mb-3">
@@ -262,11 +275,19 @@ const JobDetailScreen = ({ route, navigation }: any) => {
 
       {/* Bottom Apply Bar */}
       <View className="absolute bottom-0 left-0 right-0 flex-row p-4 pb-7 bg-white border-t border-gray-100 gap-2">
-        <TouchableOpacity
-          className="flex-1 bg-navy rounded-xl py-4 items-center"
-          onPress={handleOpenModal}>
-          <Text className="text-white text-base font-bold">Apply Now →</Text>
-        </TouchableOpacity>
+        {existingApplication ? (
+          <View className="flex-1 bg-gray-100 rounded-xl py-4 items-center">
+            <Text className="text-gray-500 text-base font-bold">
+              Already Applied · {existingApplication.status.charAt(0) + existingApplication.status.slice(1).toLowerCase()}
+            </Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            className="flex-1 bg-navy rounded-xl py-4 items-center"
+            onPress={handleOpenModal}>
+            <Text className="text-white text-base font-bold">Apply Now →</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity className="px-4 rounded-xl border border-gray-200 items-center justify-center">
           <Text className="text-lg text-gray-500">⋮</Text>
         </TouchableOpacity>
