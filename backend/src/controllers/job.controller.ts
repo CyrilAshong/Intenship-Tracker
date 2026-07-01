@@ -6,6 +6,7 @@ import {
   getCompanyJobs,
   getCompanyPublicProfile,
 } from '../services/job.service';
+import { calculateMatchScore } from '../services/ai.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
 
 export const postJob = async (req: Request, res: Response): Promise<void> => {
@@ -109,6 +110,33 @@ export const fetchCompanyPublicProfile = async (req: Request, res: Response): Pr
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch company profile.';
     sendError(res, message, 404);
+  }
+};
+
+export const getJobMatchScore = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+
+    const job = await getJobById(Array.isArray(id) ? id[0] : id);
+
+    const { prisma } = await import('../config/db');
+    const studentProfile = await prisma.studentProfile.findUnique({
+      where: { userId },
+    });
+
+    const { score, reason } = await calculateMatchScore(
+      studentProfile?.skills ?? [],
+      (studentProfile as any)?.courseOfStudy ?? null,
+      job.skillsRequired,
+      job.title,
+      job.description,
+    );
+
+    sendSuccess(res, { score, reason }, 'Match score calculated.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to calculate match score.';
+    sendError(res, message, 500);
   }
 };
 
