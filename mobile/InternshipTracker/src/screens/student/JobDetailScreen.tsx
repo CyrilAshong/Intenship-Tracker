@@ -141,9 +141,12 @@ const JobDetailScreen = ({ route, navigation }: any) => {
             {job.title}
           </Text>
           <View className="gap-1">
-            <Text className="text-sm text-gray-500">
-              🏢 {job.company.companyProfile?.companyName ?? 'Company'}
-            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CompanyProfile', { companyId: job.company.id })}>
+              <Text className="text-sm text-teal font-semibold">
+                🏢 {job.company.companyProfile?.companyName ?? 'Company'} →
+              </Text>
+            </TouchableOpacity>
             <Text className="text-sm text-gray-500">
               📍 {job.location ?? 'Location not specified'}
             </Text>
@@ -195,7 +198,7 @@ const JobDetailScreen = ({ route, navigation }: any) => {
             </View>
           </View>
         </View>
-        
+
         {/* Skills */}
         <View className="px-4 pb-4">
           <Text className="text-base font-bold text-navy mb-3">

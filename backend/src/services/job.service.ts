@@ -120,3 +120,30 @@ export const getCompanyJobs = async (companyId: string) => {
   });
   return jobs;
 };
+
+export const getCompanyPublicProfile = async (companyId: string) => {
+  const company = await prisma.user.findUnique({
+    where: { id: companyId, role: 'COMPANY' },
+    include: {
+      companyProfile: true,
+    },
+  });
+
+  if (!company) throw new Error('Company not found.');
+
+  const jobs = await prisma.jobPosting.findMany({
+    where: { companyId, isActive: true },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      _count: {
+        select: { applications: true },
+      },
+    },
+  });
+
+  return {
+    id: company.id,
+    companyProfile: company.companyProfile,
+    jobs,
+  };
+};

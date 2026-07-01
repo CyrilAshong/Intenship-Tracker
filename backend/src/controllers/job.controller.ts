@@ -4,6 +4,7 @@ import {
   getAllJobs,
   getJobById,
   getCompanyJobs,
+  getCompanyPublicProfile,
 } from '../services/job.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
 
@@ -95,6 +96,19 @@ export const fetchCompanyJobs = async (req: Request, res: Response): Promise<voi
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch jobs.';
     sendError(res, message, 500);
+  }
+};
+
+export const fetchCompanyPublicProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { companyId } = req.params;
+    const profile = await getCompanyPublicProfile(
+      Array.isArray(companyId) ? companyId[0] : companyId,
+    );
+    sendSuccess(res, profile, 'Company profile fetched successfully.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch company profile.';
+    sendError(res, message, 404);
   }
 };
 

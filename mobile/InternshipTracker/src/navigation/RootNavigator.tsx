@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
+import CompanyProfileScreen from '../screens/student/CompanyProfileScreen';
 import { useAuth } from '../context/AuthContext';
 
 import WelcomeScreen from '../screens/auth/WelcomeScreen';
@@ -54,7 +55,7 @@ const RootNavigator = () => {
             <Stack.Screen name="JobDetail" component={JobDetailScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="UploadDocuments" component={UploadDocumentsScreen} />
-
+            <Stack.Screen name="CompanyProfile" component={CompanyProfileScreen} />
           </>
         ) : (
           <>
