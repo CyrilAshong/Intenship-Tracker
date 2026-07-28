@@ -143,3 +143,39 @@ export const updateStudentProfile = async (input: UpdateStudentProfileInput) => 
 
   return user;
 };
+
+interface UpdateCompanyProfileInput {
+  userId: string;
+  companyName?: string;
+  industry?: string;
+  description?: string;
+  website?: string;
+  location?: string;
+  logoUrl?: string;
+}
+
+export const updateCompanyProfile = async (input: UpdateCompanyProfileInput) => {
+  const { userId, ...data } = input;
+
+  await prisma.companyProfile.update({
+    where: { userId },
+    data: {
+      ...(data.companyName !== undefined && { companyName: data.companyName }),
+      ...(data.industry !== undefined && { industry: data.industry }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.website !== undefined && { website: data.website }),
+      ...(data.location !== undefined && { location: data.location }),
+      ...(data.logoUrl !== undefined && { logoUrl: data.logoUrl }),
+    },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      studentProfile: true,
+      companyProfile: true,
+    },
+  });
+
+  return user;
+};

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, getMe, updateStudentProfile } from '../services/auth.service';
+import { registerUser, loginUser, getMe, updateStudentProfile, updateCompanyProfile } from '../services/auth.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
+
 import { Role } from '@prisma/client';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -130,6 +131,40 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       studentProfile: user!.studentProfile,
       companyProfile: user!.companyProfile,
     }, 'Profile updated successfully.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update profile.';
+    sendError(res, message, 400);
+  }
+};
+
+export const updateCompanyProfileHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      companyName,
+      industry,
+      description,
+      website,
+      location,
+      logoUrl,
+    } = req.body;
+
+    const user = await updateCompanyProfile({
+      userId: req.user!.userId,
+      companyName,
+      industry,
+      description,
+      website,
+      location,
+      logoUrl,
+    });
+
+    sendSuccess(res, {
+      id: user!.id,
+      email: user!.email,
+      role: user!.role,
+      studentProfile: user!.studentProfile,
+      companyProfile: user!.companyProfile,
+    }, 'Company profile updated successfully.');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to update profile.';
     sendError(res, message, 400);
