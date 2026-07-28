@@ -147,3 +147,19 @@ export const getCompanyPublicProfile = async (companyId: string) => {
     jobs,
   };
 };
+
+export const toggleJobPosting = async (jobId: string, companyId: string, isActive: boolean) => {
+  const job = await prisma.jobPosting.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!job) throw new Error('Job posting not found.');
+  if (job.companyId !== companyId) throw new Error('You do not own this job posting.');
+
+  const updated = await prisma.jobPosting.update({
+    where: { id: jobId },
+    data: { isActive },
+  });
+
+  return updated;
+};

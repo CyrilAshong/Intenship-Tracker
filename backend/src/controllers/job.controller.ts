@@ -5,6 +5,7 @@ import {
   getJobById,
   getCompanyJobs,
   getCompanyPublicProfile,
+  toggleJobPosting,
 } from '../services/job.service';
 import { calculateMatchScore } from '../services/ai.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
@@ -140,3 +141,25 @@ export const getJobMatchScore = async (req: Request, res: Response): Promise<voi
   }
 };
 
+export const toggleJob = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== 'boolean') {
+      sendError(res, 'isActive must be a boolean.', 400);
+      return;
+    }
+
+    const job = await toggleJobPosting(
+      Array.isArray(id) ? id[0] : id,
+      req.user!.userId,
+      isActive,
+    );
+
+    sendSuccess(res, job, `Job ${isActive ? 'activated' : 'deactivated'} successfully.`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update job status.';
+    sendError(res, message, 400);
+  }
+};
