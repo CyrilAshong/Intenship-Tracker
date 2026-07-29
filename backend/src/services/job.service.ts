@@ -54,43 +54,61 @@ export const createJob = async (input: CreateJobInput) => {
   return job;
 };
 
-export const getAllJobs = async (filters: JobFilters) => {
+export const getAllJobs = async (filters: JobFilters, page: number = 1, limit: number = 10) => {
   const { search, location, type, isPaid } = filters;
+  const skip = (page - 1) * limit;
 
-  const jobs = await prisma.jobPosting.findMany({
-    where: {
-      isActive: true,
+  const where = {
+    isActive: true,
+    OR: [
+      { deadline: null },
+      { deadline: { gte: new Date() } },
+    ],
+    ...(search && {
       OR: [
-        { deadline: null },
-        { deadline: { gte: new Date() } },
+        { title: { contains: search, mode: 'insensitive' as const } },
+        { description: { contains: search, mode: 'insensitive' as const } },
+        { skillsRequired: { has: search } },
       ],
-      ...(search && {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { skillsRequired: { has: search } },
-        ],
-      }),
-      ...(location && {
-        location: { contains: location, mode: 'insensitive' },
-      }),
-      ...(type && { type: type as InternshipType }),
-      ...(isPaid !== undefined && { isPaid: isPaid === 'true' }),
-    },
-    include: {
-      company: {
-        include: {
-          companyProfile: true,
+    }),
+    ...(location && {
+      location: { contains: location, mode: 'insensitive' as const },
+    }),
+    ...(type && { type: type as InternshipType }),
+    ...(isPaid !== undefined && { isPaid: isPaid === 'true' }),
+  };
+
+  const [jobs, total] = await Promise.all([
+    prisma.jobPosting.findMany({
+      where,
+      include: {
+        company: {
+          include: {
+            companyProfile: true,
+          },
+        },
+        _count: {
+          select: { applications: true },
         },
       },
-      _count: {
-        select: { applications: true },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.jobPosting.count({ where }),
+  ]);
 
-  return jobs;
+  return {
+    jobs,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 export const getJobById = async (jobId: string) => {

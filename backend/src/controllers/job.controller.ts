@@ -64,16 +64,20 @@ export const postJob = async (req: Request, res: Response): Promise<void> => {
 
 export const fetchAllJobs = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { search, location, type, isPaid } = req.query;
+    const { search, location, type, isPaid, page, limit } = req.query;
 
-    const jobs = await getAllJobs({
-      search: (Array.isArray(search) ? search[0] : search)?.toString(),
-      location: (Array.isArray(location) ? location[0] : location)?.toString(),
-      type: (Array.isArray(type) ? type[0] : type)?.toString(),
-      isPaid: (Array.isArray(isPaid) ? isPaid[0] : isPaid)?.toString(),
-    });
+    const result = await getAllJobs(
+      {
+        search: (Array.isArray(search) ? search[0] : search)?.toString(),
+        location: (Array.isArray(location) ? location[0] : location)?.toString(),
+        type: (Array.isArray(type) ? type[0] : type)?.toString(),
+        isPaid: (Array.isArray(isPaid) ? isPaid[0] : isPaid)?.toString(),
+      },
+      page ? parseInt(page as string) : 1,
+      limit ? parseInt(limit as string) : 10,
+    );
 
-    sendSuccess(res, jobs, 'Jobs fetched successfully.');
+    sendSuccess(res, result, 'Jobs fetched successfully.');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch jobs.';
     sendError(res, message, 500);
