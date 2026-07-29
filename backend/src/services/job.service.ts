@@ -60,6 +60,10 @@ export const getAllJobs = async (filters: JobFilters) => {
   const jobs = await prisma.jobPosting.findMany({
     where: {
       isActive: true,
+      OR: [
+        { deadline: null },
+        { deadline: { gte: new Date() } },
+      ],
       ...(search && {
         OR: [
           { title: { contains: search, mode: 'insensitive' } },
