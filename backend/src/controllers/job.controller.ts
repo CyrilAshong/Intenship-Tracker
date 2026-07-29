@@ -6,6 +6,7 @@ import {
   getCompanyJobs,
   getCompanyPublicProfile,
   toggleJobPosting,
+  updateJob,
 } from '../services/job.service';
 import { calculateMatchScore } from '../services/ai.service';
 import { sendSuccess, sendCreated, sendError } from '../utils/responseHelper';
@@ -164,6 +165,52 @@ export const toggleJob = async (req: Request, res: Response): Promise<void> => {
     sendSuccess(res, job, `Job ${isActive ? 'activated' : 'deactivated'} successfully.`);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to update job status.';
+    sendError(res, message, 400);
+  }
+};
+
+export const editJob = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      skillsRequired,
+      responsibilities,
+      academicRequirements,
+      imageUrl,
+      location,
+      type,
+      isPaid,
+      stipend,
+      duration,
+      vacancies,
+      deadline,
+    } = req.body;
+
+    const job = await updateJob(
+      Array.isArray(id) ? id[0] : id,
+      req.user!.userId,
+      {
+        title,
+        description,
+        skillsRequired,
+        responsibilities,
+        academicRequirements,
+        imageUrl,
+        location,
+        type,
+        isPaid,
+        stipend,
+        duration,
+        vacancies,
+        deadline,
+      },
+    );
+
+    sendSuccess(res, job, 'Job updated successfully.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update job.';
     sendError(res, message, 400);
   }
 };

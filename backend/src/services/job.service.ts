@@ -69,6 +69,13 @@ export const getAllJobs = async (filters: JobFilters, page: number = 1, limit: n
         { title: { contains: search, mode: 'insensitive' as const } },
         { description: { contains: search, mode: 'insensitive' as const } },
         { skillsRequired: { has: search } },
+        {
+          company: {
+            companyProfile: {
+              companyName: { contains: search, mode: 'insensitive' as const },
+            },
+          },
+        },
       ],
     }),
     ...(location && {
@@ -181,6 +188,44 @@ export const toggleJobPosting = async (jobId: string, companyId: string, isActiv
   const updated = await prisma.jobPosting.update({
     where: { id: jobId },
     data: { isActive },
+  });
+
+  return updated;
+};
+
+export const updateJob = async (jobId: string, companyId: string, input: Partial<CreateJobInput>) => {
+  const job = await prisma.jobPosting.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!job) throw new Error('Job posting not found.');
+  if (job.companyId !== companyId) throw new Error('You do not own this job posting.');
+
+  const updated = await prisma.jobPosting.update({
+    where: { id: jobId },
+    data: {
+      ...(input.title !== undefined && { title: input.title }),
+      ...(input.description !== undefined && { description: input.description }),
+      ...(input.skillsRequired !== undefined && { skillsRequired: input.skillsRequired }),
+      ...(input.responsibilities !== undefined && { responsibilities: input.responsibilities }),
+      ...(input.academicRequirements !== undefined && { academicRequirements: input.academicRequirements }),
+      ...(input.imageUrl !== undefined && { imageUrl: input.imageUrl }),
+      ...(input.location !== undefined && { location: input.location }),
+      ...(input.type !== undefined && { type: input.type }),
+      ...(input.isPaid !== undefined && { isPaid: input.isPaid }),
+      ...(input.stipend !== undefined && { stipend: input.stipend }),
+      ...(input.duration !== undefined && { duration: input.duration }),
+      ...(input.vacancies !== undefined && { vacancies: input.vacancies }),
+      ...(input.deadline !== undefined && { deadline: input.deadline ? new Date(input.deadline) : null }),
+    },
+    include: {
+      company: {
+        include: { companyProfile: true },
+      },
+      _count: {
+        select: { applications: true },
+      },
+    },
   });
 
   return updated;

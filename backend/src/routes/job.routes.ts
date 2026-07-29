@@ -7,6 +7,7 @@ import {
   fetchCompanyPublicProfile,
   getJobMatchScore,
   toggleJob,
+  editJob,
 } from '../controllers/job.controller';
 import { protect } from '../middleware/auth.middleware';
 import { restrictTo } from '../middleware/role.middleware';
@@ -18,6 +19,7 @@ router.get('/', protect, fetchAllJobs);
 router.get('/company/my-jobs', protect, restrictTo('COMPANY'), fetchCompanyJobs);
 router.get('/company/:companyId', protect, fetchCompanyPublicProfile);
 router.get('/:id/match', protect, restrictTo('STUDENT'), getJobMatchScore);
+router.patch('/:id', protect, restrictTo('COMPANY'), editJob);
 router.get('/:id', protect, fetchJobById);
 router.patch('/:id/toggle', protect, restrictTo('COMPANY'), toggleJob);
 
