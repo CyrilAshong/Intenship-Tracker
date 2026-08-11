@@ -132,8 +132,10 @@ export const getJobMatchScore = async (req: Request, res: Response): Promise<voi
     });
 
     const { score, reason } = await calculateMatchScore(
+      userId,
       studentProfile?.skills ?? [],
       (studentProfile as any)?.courseOfStudy ?? null,
+      job.id,
       job.skillsRequired,
       job.title,
       job.description,

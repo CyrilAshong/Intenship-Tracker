@@ -54,6 +54,7 @@ model User {
 
   studentProfile StudentProfile?
   companyProfile CompanyProfile?
+  matchScores      MatchScore[]    @relation("StudentMatchScores")
   jobPostings    JobPosting[]
   applications   Application[]
   documents      Document[]
@@ -128,6 +129,7 @@ model JobPosting {
 
   company      User          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
+  matchScores   MatchScore[]
 
   @@index([companyId])
   @@index([isActive])
@@ -146,6 +148,8 @@ model Application {
   interviewedAt DateTime?
   decidedAt    DateTime?
   updatedAt    DateTime          @updatedAt
+  matchScore    Int?
+  matchReason   String?
 
   student    User       @relation(fields: [studentId],    references: [id], onDelete: Cascade)
   jobPosting JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
@@ -178,4 +182,20 @@ model Document {
   @@index([userId])
   @@index([applicationId])
   @@map("documents")
+}
+
+model MatchScore {
+  id        String   @id @default(uuid())
+  studentId String
+  jobId     String
+  score     Int
+  reason    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student   User       @relation("StudentMatchScores", fields: [studentId], references: [id], onDelete: Cascade)
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, jobId])
+  @@map("match_scores")
 }

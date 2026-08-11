@@ -1,14 +1,31 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { prisma } from '../config/db';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export const calculateMatchScore = async (
+  studentId: string,
   studentSkills: string[],
   studentCourse: string | null,
+  jobId: string,
   jobSkills: string[],
   jobTitle: string,
   jobDescription: string,
 ): Promise<{ score: number; reason: string }> => {
+
+  // Check cache first
+  const cached = await prisma.matchScore.findUnique({
+    where: { studentId_jobId: { studentId, jobId } },
+  });
+
+  if (cached) {
+    return { score: cached.score, reason: cached.reason };
+  }
+
+  // Compute with Gemini
+  let score: number;
+  let reason: string;
+
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
@@ -38,22 +55,30 @@ Respond ONLY with a JSON object in this exact format, no other text:
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
-    return {
-      score: Math.min(100, Math.max(0, Math.round(parsed.score))),
-      reason: parsed.reason ?? 'Based on skills and profile match',
-    };
-  } catch (error) {
-    // Fallback to heuristic if AI fails
+    score = Math.min(100, Math.max(0, Math.round(parsed.score)));
+    reason = parsed.reason ?? 'Based on skills and profile match';
+  } catch {
+    // Fallback heuristic
     const matchingSkills = studentSkills.filter((s) =>
       jobSkills.some(
-        (j) => j.toLowerCase().includes(s.toLowerCase()) ||
-               s.toLowerCase().includes(j.toLowerCase()),
+        (j) =>
+          j.toLowerCase().includes(s.toLowerCase()) ||
+          s.toLowerCase().includes(j.toLowerCase()),
       ),
     );
-    const score = Math.min(
+    score = Math.min(
       95,
       40 + Math.round((matchingSkills.length / Math.max(jobSkills.length, 1)) * 55),
     );
-    return { score, reason: 'Based on skills overlap' };
+    reason = 'Based on skills overlap';
   }
+
+  // Save to cache
+  await prisma.matchScore.upsert({
+    where: { studentId_jobId: { studentId, jobId } },
+    create: { studentId, jobId, score, reason },
+    update: { score, reason },
+  });
+
+  return { score, reason };
 };
