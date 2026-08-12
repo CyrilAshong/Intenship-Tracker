@@ -170,3 +170,17 @@ export const updateCompanyProfileHandler = async (req: Request, res: Response): 
     sendError(res, message, 400);
   }
 };
+
+export const clearMatchScoreCache = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+    const { prisma } = await import('../config/db');
+    await prisma.matchScore.deleteMany({
+      where: { studentId: userId },
+    });
+    sendSuccess(res, null, 'Match score cache cleared.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to clear cache.';
+    sendError(res, message, 500);
+  }
+};
