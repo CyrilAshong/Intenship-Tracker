@@ -26,6 +26,20 @@ interface JobFilters {
 }
 
 export const createJob = async (input: CreateJobInput) => {
+  // Check company is verified
+  const company = await prisma.user.findUnique({
+    where: { id: input.companyId },
+    include: { companyProfile: true },
+  });
+
+  if (!company?.companyProfile) {
+    throw new Error('Company profile not found.');
+  }
+
+  if (company.companyProfile.verificationStatus !== 'VERIFIED') {
+    throw new Error('Your company must be verified by an admin before posting internships.');
+  }
+  
   const job = await prisma.jobPosting.create({
     data: {
       companyId: input.companyId,
