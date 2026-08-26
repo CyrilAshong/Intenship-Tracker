@@ -146,6 +146,7 @@ export const updateCompanyProfileHandler = async (req: Request, res: Response): 
       website,
       location,
       logoUrl,
+      coverUrl,
     } = req.body;
 
     const user = await updateCompanyProfile({
@@ -156,6 +157,7 @@ export const updateCompanyProfileHandler = async (req: Request, res: Response): 
       website,
       location,
       logoUrl,
+      coverUrl,
     });
 
     sendSuccess(res, {
