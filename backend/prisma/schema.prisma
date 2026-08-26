@@ -94,6 +94,7 @@ model CompanyProfile {
   description        String?            @db.Text
   website            String?
   logoUrl            String?
+  coverUrl           String?
   location           String?
   verificationStatus VerificationStatus @default(UNVERIFIED)
   verifiedAt         DateTime?

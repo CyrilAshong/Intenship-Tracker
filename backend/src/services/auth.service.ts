@@ -152,6 +152,7 @@ interface UpdateCompanyProfileInput {
   website?: string;
   location?: string;
   logoUrl?: string;
+  coverUrl?: string;
 }
 
 export const updateCompanyProfile = async (input: UpdateCompanyProfileInput) => {
@@ -166,6 +167,7 @@ export const updateCompanyProfile = async (input: UpdateCompanyProfileInput) => 
       ...(data.website !== undefined && { website: data.website }),
       ...(data.location !== undefined && { location: data.location }),
       ...(data.logoUrl !== undefined && { logoUrl: data.logoUrl }),
+      ...(data.coverUrl !== undefined && { coverUrl: data.coverUrl }),
     },
   });
 
