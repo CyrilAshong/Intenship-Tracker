@@ -18,6 +18,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:4173',
   'https://localhost:5173',
+  'https://uniintern.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
